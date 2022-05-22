@@ -28,9 +28,14 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    void SetNextStage(int stage)
+    public void SetNextStage(int stage)
     {
         stageID = stage;
+    }
+
+    public int GetStageID()
+    {
+        return stageID;
     }
 
     void InstantiateStage()
