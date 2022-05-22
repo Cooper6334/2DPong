@@ -61,11 +61,9 @@ public class StageManager : MonoBehaviour
         for (int c = 0; c < STAGE_COLUMN_COUNT; c++)
         {
             result[c] = new int[STAGE_ROW_COUNT];
-            Debug.Log("line " + c + " " + lines[c]);
             string[] column = lines[c].Split(',');
             for (int r = 0; r < STAGE_ROW_COUNT; r++)
             {
-                Debug.Log(c + "," + r + " " + column[r]);
                 result[c][r] = int.Parse(column[r]);
             }
         }
