@@ -6,25 +6,48 @@ using UnityEngine.SceneManagement;
 
 public class GamePlayManager : MonoBehaviour
 {
-    const string STAGE_DATA_FOLDER = "Stage";
-    const string STAGE_DATA_PREFIX = "Stage_";
-    const string STAGE_DATA_EXTENSION = ".csv";
-    const int STAGE_LINE_COUNT = 9;
+    const float BRICK_START_X = -2;
+    const float BRICK_START_Y = 2;
+    const float BRICK_WIDTH = 0.5f;
+    const float BRICK_HEIGHT = 0.2f;
 
-    [SerializeField] GameObject brickPrefab;
+    [SerializeField] GameObject brickPrefabBasic;
     StageManager stageManager;
-    List<Brick> bricks;
+    int[][] bricks;
     // Start is called before the first frame update
     void Start()
     {
         stageManager = StageManager.Instance;
-        string stagePath = Path.Combine(Application.streamingAssetsPath, STAGE_DATA_FOLDER,
-            STAGE_DATA_PREFIX + stageManager.GetStageID()+ STAGE_DATA_EXTENSION);
-        string xml = File.ReadAllText(stagePath);
-        string[] lines = xml.Split('\n');
-        for (int i = 0; i < STAGE_LINE_COUNT; i++)
+        if (stageManager == null)
         {
-            //Debug.Log(lines[i]);
+            SceneManager.LoadScene("Splash");
+            return;
+        }
+        bricks = stageManager.GetCurrentStageBricks();
+
+        for (int c = 0; c < StageManager.STAGE_COLUMN_COUNT; c++)
+        {
+            for (int r = 0; r < StageManager.STAGE_ROW_COUNT; r++)
+            {
+                GameObject brickPrefab = null;
+                switch (bricks[c][r])
+                {
+                    case 0:
+                    default:
+                        break;
+                    case 1:
+                        brickPrefab = brickPrefabBasic;
+                        break;
+                }
+                if (brickPrefab != null)
+                {
+                    GameObject newBrick = Instantiate(brickPrefab);
+                    newBrick.transform.position = new Vector2(
+                        BRICK_START_X + r * BRICK_WIDTH,
+                        BRICK_START_Y - c * BRICK_HEIGHT
+                        );
+                }
+            }
         }
     }
 

@@ -152,6 +152,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2fd110b8957d01b4b87c332a64c18047, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  brickPrefab: {fileID: 8167005873184888803, guid: e33fbe6e69a8e3d48b299b01a3a2f153, type: 3}
 --- !u!4 &490364201
 Transform:
   m_ObjectHideFlags: 0
