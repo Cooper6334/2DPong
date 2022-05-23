@@ -10,6 +10,7 @@ public class GamePlayManager : MonoBehaviour
     const float BRICK_START_Y = 2;
     const float BRICK_WIDTH = 0.5f;
     const float BRICK_HEIGHT = 0.2f;
+    const int DEFAULT_LIFE_COUNT = 3;
 
     [SerializeField] GameObject brickPrefabBasic;
 
@@ -20,6 +21,8 @@ public class GamePlayManager : MonoBehaviour
     StageManager stageManager;
     int[][] bricks;
     int brickCount = 0;
+
+    int lifeCount;
     bool isGamePlaying = false;
 
 
@@ -71,6 +74,8 @@ public class GamePlayManager : MonoBehaviour
                 }
             }
         }
+        lifeCount = DEFAULT_LIFE_COUNT;
+        CreateBall();
         isGamePlaying = true;
     }
 
@@ -106,14 +111,34 @@ public class GamePlayManager : MonoBehaviour
             }
         }
     }
-    public void StageClear()
+    bool CreateBall()
+    {
+        if(lifeCount <= 0)
+        {
+            return false;
+        }
+        lifeCount--;
+        ball.Reset();
+        return true;
+    }
+
+    void StageClear()
     {
         Debug.Log("StageClear");
         Destroy(ball.gameObject);
         isGamePlaying = false;
-        ShowScore();
+        ShowUI();
     }
-    public void ShowScore()
+
+    void GameOver()
+    {
+        Debug.Log("GameOver");
+        Destroy(ball.gameObject);
+        isGamePlaying = false;
+        ShowUI();
+    }
+
+    public void ShowUI()
     {
 
     }
@@ -125,6 +150,14 @@ public class GamePlayManager : MonoBehaviour
         if (brickCount <= 0)
         {
             StageClear();
+        }
+    }
+
+    public void OnBallFall()
+    {
+        if (!CreateBall())
+        {
+            GameOver();
         }
     }
     #endregion
