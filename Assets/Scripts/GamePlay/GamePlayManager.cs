@@ -12,9 +12,27 @@ public class GamePlayManager : MonoBehaviour
     const float BRICK_HEIGHT = 0.2f;
 
     [SerializeField] GameObject brickPrefabBasic;
+
+    [SerializeField] Transform brickContainer;
+    [SerializeField] Player player;
+    [SerializeField] Ball ball;
     StageManager stageManager;
     int[][] bricks;
-    // Start is called before the first frame update
+
+
+    static GamePlayManager _instance;
+    public static GamePlayManager Instance
+    {
+        get
+        {
+            if (_instance == null)
+            {
+                _instance = FindObjectOfType<GamePlayManager>();
+            }
+            return _instance;
+        }
+    }
+
     void Start()
     {
         stageManager = StageManager.Instance;
@@ -41,7 +59,7 @@ public class GamePlayManager : MonoBehaviour
                 }
                 if (brickPrefab != null)
                 {
-                    GameObject newBrick = Instantiate(brickPrefab);
+                    GameObject newBrick = Instantiate(brickPrefab, brickContainer);
                     newBrick.transform.position = new Vector2(
                         BRICK_START_X + r * BRICK_WIDTH,
                         BRICK_START_Y - c * BRICK_HEIGHT
@@ -57,6 +75,27 @@ public class GamePlayManager : MonoBehaviour
         if (Input.GetKeyUp(KeyCode.Escape))
         {
             SceneManager.LoadSceneAsync("Lobby");
+        }
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            ball.Shoot();
+        }
+        if (Input.GetKeyUp(KeyCode.R))
+        {
+            ball.Reset();
+        }
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            player.SetDirection(Player.Direction.Left);
+        }
+        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            player.SetDirection(Player.Direction.Right);
+        }
+        else if(!Input.GetKey(KeyCode.LeftArrow) && !Input.GetKey(KeyCode.RightArrow))
+        {
+            player.SetDirection(Player.Direction.Stay);
         }
     }
 }
