@@ -7,10 +7,19 @@ public class Player : MonoBehaviour
     [SerializeField] Rigidbody2D playerRigid;
 
     const float DEFAULT_SPEED = 5;
+    const float MOVE_RANGE = 1.9f;
     Direction direction = Direction.Stay;
 
     public void SetDirection(Direction newDirection)
     {
+        if (newDirection == Direction.Left && transform.position.x <= -MOVE_RANGE)
+        {
+            newDirection = Direction.Stay;
+        }
+        else if (newDirection == Direction.Right && transform.position.x >= MOVE_RANGE)
+        {
+            newDirection = Direction.Stay;
+        }
         if (newDirection == direction)
         {
             return;
@@ -27,6 +36,20 @@ public class Player : MonoBehaviour
             case Direction.Stay:
                 playerRigid.velocity = Vector2.zero;
                 break;
+        }
+    }
+
+    private void Update()
+    {
+        if (direction == Direction.Left && transform.position.x <= -MOVE_RANGE)
+        {
+            SetDirection(Direction.Stay);
+            transform.position = new Vector2( -MOVE_RANGE, transform.position.y);
+        }
+        else if (direction == Direction.Right && transform.position.x >= MOVE_RANGE)
+        {
+            SetDirection(Direction.Stay);
+            transform.position = new Vector2(MOVE_RANGE, transform.position.y);
         }
     }
 

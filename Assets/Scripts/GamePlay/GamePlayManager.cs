@@ -93,7 +93,7 @@ public class GamePlayManager : MonoBehaviour
         }
         lifeCount = DEFAULT_LIFE_COUNT;
         gameStartTime = DateTime.Now;
-        CreateBall();
+        CreateBall();   
         isGamePlaying = true;
     }
 
@@ -108,7 +108,7 @@ public class GamePlayManager : MonoBehaviour
         if (isGamePlaying)
         {
             int playSec = (int)((DateTime.Now - gameStartTime).TotalSeconds - pauseSec);
-            timeText.text = playSec / 60 + ":"+playSec % 60;
+            timeText.text = String.Format("Time {0:D2}:{1:D2}", playSec / 60, playSec % 60);
             if (Input.GetKeyUp(KeyCode.Space))
             {
                 ball.Shoot();
