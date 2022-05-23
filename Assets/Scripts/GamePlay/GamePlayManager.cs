@@ -91,8 +91,7 @@ public class GamePlayManager : MonoBehaviour
             int playSec = (int)((DateTime.Now - gameStartTime).TotalSeconds - pauseSec);
             timeText.text = String.Format("Time {0:D2}:{1:D2}", playSec / 60, playSec % 60);
 #if UNITY_EDITOR
-            //HandleKeyboard();
-            HandleTouch();
+            HandleKeyboard();
 #else
             HandleTouch();
 #endif
@@ -190,26 +189,10 @@ public class GamePlayManager : MonoBehaviour
         {
             return;
         }
-        Touch touch = Input.GetTouch(0);
+        Touch touch = Input.GetTouch(Input.touchCount - 1);
         switch (touch.phase)
         {
             case TouchPhase.Began:
-                {
-                    ball.Shoot();
-                    Vector2 pos = touch.position;
-                    if (pos.y < Screen.height / 2)
-                    {
-                        if (pos.x > Screen.width / 2)
-                        {
-                            player.SetDirection(Player.Direction.Right);
-                        }
-                        else
-                        {
-                            player.SetDirection(Player.Direction.Left);
-                        }
-                    }
-                }
-                break;
             case TouchPhase.Moved:
                 {
                     Vector2 pos = touch.position;
@@ -228,7 +211,7 @@ public class GamePlayManager : MonoBehaviour
                 break;
             case TouchPhase.Ended:
             case TouchPhase.Canceled:
-                Debug.Log("touch end");
+                ball.Shoot();
                 player.SetDirection(Player.Direction.Stay);
                 break;
         }

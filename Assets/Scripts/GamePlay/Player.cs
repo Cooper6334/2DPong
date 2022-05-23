@@ -21,11 +21,7 @@ public class Player : MonoBehaviour
 
     public void SetDirection(Direction newDirection)
     {
-        if (newDirection == Direction.Left && transform.position.x <= -moveRange)
-        {
-            newDirection = Direction.Stay;
-        }
-        else if (newDirection == Direction.Right && transform.position.x >= moveRange)
+        if ((direction == Direction.Left && transform.position.x <= -moveRange) || (direction == Direction.Right && transform.position.x >= moveRange))
         {
             newDirection = Direction.Stay;
         }
@@ -48,17 +44,24 @@ public class Player : MonoBehaviour
         }
     }
 
-    private void Update()
+
+    private void LateUpdate()
     {
-        if (direction == Direction.Left && transform.position.x <= -moveRange)
+        if (transform.position.x < -moveRange)
         {
-            SetDirection(Direction.Stay);
             transform.position = new Vector2(-moveRange, transform.position.y);
+            if (direction == Direction.Left)
+            {
+                SetDirection(Direction.Stay);
+            }
         }
-        else if (direction == Direction.Right && transform.position.x >= moveRange)
+        if (transform.position.x > moveRange)
         {
-            SetDirection(Direction.Stay);
             transform.position = new Vector2(moveRange, transform.position.y);
+            if (direction == Direction.Right)
+            {
+                SetDirection(Direction.Stay);
+            }
         }
     }
 
@@ -74,6 +77,10 @@ public class Player : MonoBehaviour
                 length = Mathf.Clamp(length + LENGTH_UP, DEFAULT_LENGTH, MAX_LENGTH);
                 moveRange -= LENGTH_UP / 2;
                 transform.localScale = new Vector2(length, DEFAULT_HEIGHT);
+                if ((direction == Direction.Left && transform.position.x <= -moveRange) || (direction == Direction.Right && transform.position.x >= moveRange))
+                {
+                    transform.position = new Vector2((direction == Direction.Left ? -1 : 1) * moveRange, transform.position.y);
+                }
                 break;
             case Item.ItemType.MoveSpeed:
                 speed += SPEED_UP;

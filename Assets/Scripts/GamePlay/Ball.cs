@@ -25,6 +25,12 @@ public class Ball : MonoBehaviour
             Debug.Log("Ball over frame");
             GamePlayManager.Instance.OnBallFall();
         }
+        if(Mathf.Abs(myRigidbody.velocity.y) < 0.1f)
+        {
+            float newY = 0.5f * myRigidbody.velocity.y > 0 ? 1 : -1;
+            myRigidbody.velocity = ballSpeed * (new Vector2(myRigidbody.velocity.x, newY)).normalized;
+
+        }
     }
 
     public void Shoot()
@@ -40,7 +46,7 @@ public class Ball : MonoBehaviour
         //vx in range +- 0.25 to 0.5
         float vx = Random.Range(-0.25f, 0.25f);
         vx = vx + 0.25f * (vx > 0 ? 1 : -1);
-        myRigidbody.velocity = DEFAULT_SPEED * (new Vector2(vx, 1f)).normalized;
+        myRigidbody.velocity = ballSpeed * (new Vector2(vx, 1f)).normalized;
     }
 
     public void Reset()

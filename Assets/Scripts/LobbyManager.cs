@@ -21,6 +21,10 @@ public class LobbyManager : MonoBehaviour
     {
         SceneManager.LoadSceneAsync("Game");
     }
+    public void QuitGame()
+    {
+        Application.Quit();
+    }
 
     public void SelectStage(bool next)
     {
