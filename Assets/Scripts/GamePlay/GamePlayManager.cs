@@ -42,6 +42,8 @@ public class GamePlayManager : MonoBehaviour
     int pauseSec = 0;
 
 
+
+
     static GamePlayManager _instance;
     public static GamePlayManager Instance
     {
@@ -118,42 +120,80 @@ public class GamePlayManager : MonoBehaviour
         {
             int playSec = (int)((DateTime.Now - gameStartTime).TotalSeconds - pauseSec);
             timeText.text = String.Format("Time {0:D2}:{1:D2}", playSec / 60, playSec % 60);
-            if (Input.GetKeyUp(KeyCode.Space))
-            {
-                ball.Shoot();
-            }
-            if (Input.GetKeyUp(KeyCode.R))
-            {
-                ball.Reset();
-            }
-            if (Input.GetKeyUp(KeyCode.I))
-            {
-                CreateItem(new Vector2(0, 3), (Item.ItemType)(UnityEngine.Random.Range(0, 3)));
-            }
-            if (Input.GetKeyUp(KeyCode.Alpha0))
-            {
-                CreateItem(new Vector2(0, 3), Item.ItemType.Long);
-            }
-            if (Input.GetKeyUp(KeyCode.Alpha1))
-            {
-                CreateItem(new Vector2(0, 3), Item.ItemType.BallQuick);
-            }
-            if (Input.GetKeyUp(KeyCode.Alpha2))
-            {
-                CreateItem(new Vector2(0, 3), Item.ItemType.MoveSpeed);
-            }
-            if (Input.GetKeyDown(KeyCode.LeftArrow))
-            {
-                player.SetDirection(Player.Direction.Left);
-            }
-            else if (Input.GetKeyDown(KeyCode.RightArrow))
-            {
-                player.SetDirection(Player.Direction.Right);
-            }
-            else if (!Input.GetKey(KeyCode.LeftArrow) && !Input.GetKey(KeyCode.RightArrow))
-            {
+            HandleKeyboard();
+            HandleTouch();
+        }
+    }
+
+    void HandleKeyboard()
+    {
+        if (Input.GetKeyUp(KeyCode.Space))
+        {
+            ball.Shoot();
+        }
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        {
+            player.SetDirection(Player.Direction.Left);
+        }
+        else if (Input.GetKeyDown(KeyCode.RightArrow))
+        {
+            player.SetDirection(Player.Direction.Right);
+        }
+        else if (!Input.GetKey(KeyCode.LeftArrow) && !Input.GetKey(KeyCode.RightArrow))
+        {
+            player.SetDirection(Player.Direction.Stay);
+        }
+#if UNITY_EDITOR
+        if (Input.GetKeyUp(KeyCode.R))
+        {
+            ball.Reset();
+        }
+        if (Input.GetKeyUp(KeyCode.I))
+        {
+            CreateItem(new Vector2(0, 3), (Item.ItemType)(UnityEngine.Random.Range(0, 3)));
+        }
+        if (Input.GetKeyUp(KeyCode.Alpha0))
+        {
+            CreateItem(new Vector2(0, 3), Item.ItemType.Long);
+        }
+        if (Input.GetKeyUp(KeyCode.Alpha1))
+        {
+            CreateItem(new Vector2(0, 3), Item.ItemType.BallQuick);
+        }
+        if (Input.GetKeyUp(KeyCode.Alpha2))
+        {
+            CreateItem(new Vector2(0, 3), Item.ItemType.MoveSpeed);
+        }
+#endif
+    }
+
+    void HandleTouch()
+    {
+        if(Input.touchCount <= 0)
+        {
+            return;
+        }
+        Touch touch = Input.GetTouch(0);
+        switch (touch.phase)
+        {
+            case TouchPhase.Began:
+            case TouchPhase.Moved:
+                Vector2 pos = touch.position;
+                if(pos.y > Screen.height / 2)
+                {
+                    if(pos.x > Screen.width / 2)
+                    {
+                        player.SetDirection(Player.Direction.Right);
+                    }
+                    else
+                    {
+                        player.SetDirection(Player.Direction.Left);
+                    }
+                }
+                break;
+            case TouchPhase.Ended:
                 player.SetDirection(Player.Direction.Stay);
-            }
+                break;
         }
     }
 
