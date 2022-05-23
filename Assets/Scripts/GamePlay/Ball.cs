@@ -18,6 +18,11 @@ public class Ball : MonoBehaviour
         {
             transform.localPosition = INIT_POSITION;
         }
+        if(transform.position.y < -5.5f || transform.position.y > 3.6f)
+        {
+            Debug.Log("Ball over frame");
+            GamePlayManager.Instance.OnBallFall();
+        }
     }
 
     public void Shoot()

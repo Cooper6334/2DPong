@@ -70,6 +70,16 @@ public class StageManager : MonoBehaviour
         }
     }
 
+    public bool IsTutorial()
+    {
+        return stageID == FIRST_STAGE;
+    }
+
+    public bool HaveNextStage()
+    {
+        return stageID < LAST_STAGE;
+    }
+
     public int GetStageID()
     {
         return stageID;

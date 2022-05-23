@@ -1,6 +1,8 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -18,12 +20,23 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField] Player player;
     [SerializeField] Ball ball;
 
+    [SerializeField] TextMeshProUGUI timeText;
+    [SerializeField] TextMeshProUGUI lifeText;
+    [SerializeField] GameObject tutorial;
+
+    [SerializeField] GameObject gameOverUI;
+    [SerializeField] GameObject stageClearUI;
+    [SerializeField] TextMeshProUGUI stageClearMessage;
+    [SerializeField] TextMeshProUGUI stageClearButtonText;
+
     StageManager stageManager;
     int[][] bricks;
     int brickCount = 0;
 
     int lifeCount;
     bool isGamePlaying = false;
+    DateTime gameStartTime;
+    int pauseSec = 0;
 
 
     static GamePlayManager _instance;
@@ -46,6 +59,10 @@ public class GamePlayManager : MonoBehaviour
         {
             SceneManager.LoadScene("Splash");
             return;
+        }
+        if (stageManager.IsTutorial())
+        {
+            tutorial.SetActive(true);
         }
         bricks = stageManager.GetCurrentStageBricks();
 
@@ -75,6 +92,7 @@ public class GamePlayManager : MonoBehaviour
             }
         }
         lifeCount = DEFAULT_LIFE_COUNT;
+        gameStartTime = DateTime.Now;
         CreateBall();
         isGamePlaying = true;
     }
@@ -89,6 +107,8 @@ public class GamePlayManager : MonoBehaviour
 
         if (isGamePlaying)
         {
+            int playSec = (int)((DateTime.Now - gameStartTime).TotalSeconds - pauseSec);
+            timeText.text = playSec / 60 + ":"+playSec % 60;
             if (Input.GetKeyUp(KeyCode.Space))
             {
                 ball.Shoot();
@@ -111,6 +131,12 @@ public class GamePlayManager : MonoBehaviour
             }
         }
     }
+
+    void UpdateLifeText()
+    {
+        lifeText.text = "Ball Count : " + lifeCount;
+    }
+
     bool CreateBall()
     {
         if(lifeCount <= 0)
@@ -119,6 +145,7 @@ public class GamePlayManager : MonoBehaviour
         }
         lifeCount--;
         ball.Reset();
+        UpdateLifeText();
         return true;
     }
 
@@ -127,7 +154,12 @@ public class GamePlayManager : MonoBehaviour
         Debug.Log("StageClear");
         Destroy(ball.gameObject);
         isGamePlaying = false;
-        ShowUI();
+        if (!stageManager.HaveNextStage())
+        {
+            stageClearMessage.text = "Final Stage Cleared !!";
+            stageClearButtonText.text = "Back";
+        }
+        stageClearUI.SetActive(true);
     }
 
     void GameOver()
@@ -135,14 +167,33 @@ public class GamePlayManager : MonoBehaviour
         Debug.Log("GameOver");
         Destroy(ball.gameObject);
         isGamePlaying = false;
-        ShowUI();
+        gameOverUI.SetActive(true);
     }
 
-    public void ShowUI()
+    #region button event
+    public void OnNextStagePressed()
     {
-
+        if (stageManager.HaveNextStage())
+        {
+            stageManager.SelectStage(true);
+            SceneManager.LoadSceneAsync("Game");
+        }
+        else
+        {
+            SceneManager.LoadSceneAsync("Lobby");
+        }
     }
 
+    public void OnRetryPressed()
+    {
+        SceneManager.LoadSceneAsync("Game");
+    }
+
+    public void OnReturnPressed()
+    {
+        SceneManager.LoadSceneAsync("Lobby");
+    }
+    #endregion
     #region event
     public void OnBrickDestroy()
     {
