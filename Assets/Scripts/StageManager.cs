@@ -1,12 +1,13 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using UnityEngine.Networking;
 
 public class StageManager : MonoBehaviour
 {
-    const string STAGE_DATA_FOLDER = "Stage";
-    const string STAGE_DATA_PREFIX = "Stage_";
+    const string STAGE_DATA_PREFIX = "stage_";
     const string STAGE_DATA_EXTENSION = ".csv";
 
     const int FIRST_STAGE = 0;
@@ -16,6 +17,7 @@ public class StageManager : MonoBehaviour
     public const int STAGE_COLUMN_COUNT = 6;
 
     static StageManager _instance;
+
     public static StageManager Instance
     {
         get
@@ -50,7 +52,7 @@ public class StageManager : MonoBehaviour
         }
         else
         {
-            if(stageID > FIRST_STAGE)
+            if (stageID > FIRST_STAGE)
             {
                 stageID--;
             }
@@ -60,7 +62,7 @@ public class StageManager : MonoBehaviour
 
     public string GetStageName()
     {
-        if(stageID == FIRST_STAGE)
+        if (stageID == FIRST_STAGE)
         {
             return "Tutorial";
         }
@@ -85,18 +87,22 @@ public class StageManager : MonoBehaviour
         return stageID;
     }
 
-    void InstantiateStage()
-    {
-
-    }
-
-    public int[][] GetCurrentStageBricks()
+    public IEnumerator GetStageFromFile(Action<int[][]> callback)
     {
         int[][] result = new int[STAGE_COLUMN_COUNT][];
-        string stagePath = Path.Combine(Application.streamingAssetsPath, STAGE_DATA_FOLDER,
+        string stagePath = Path.Combine(Application.streamingAssetsPath,
             STAGE_DATA_PREFIX + stageID + STAGE_DATA_EXTENSION);
-        string xml = File.ReadAllText(stagePath);
-        string[] lines = xml.Split('\n');
+        UnityWebRequest www = UnityWebRequest.Get(stagePath);
+        yield return www.SendWebRequest();
+        if (www.result == UnityWebRequest.Result.ConnectionError
+            || www.result == UnityWebRequest.Result.DataProcessingError
+            || www.result == UnityWebRequest.Result.ProtocolError)
+        {
+            Debug.LogError("Load stage Error " + www.error);
+        }
+        string csv = www.downloadHandler.text;
+        csv = csv.Replace((char)65279 + "", string.Empty);
+        string[] lines = csv.Split('\n');
         for (int c = 0; c < STAGE_COLUMN_COUNT; c++)
         {
             result[c] = new int[STAGE_ROW_COUNT];
@@ -106,6 +112,7 @@ public class StageManager : MonoBehaviour
                 result[c][r] = int.Parse(column[r]);
             }
         }
-        return result;
+        yield return result;
+        callback(result);
     }
 }

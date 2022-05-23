@@ -14,6 +14,9 @@ public class GamePlayManager : MonoBehaviour
     const float BRICK_HEIGHT = 0.2f;
     const int DEFAULT_LIFE_COUNT = 3;
 
+    [SerializeField] Camera gameCamera;
+    [SerializeField] RectTransform topUI;
+
     [SerializeField] GameObject brickPrefabBasic;
     [SerializeField] GameObject brickPrefabHp2;
     [SerializeField] GameObject brickPrefabHaveItem;
@@ -33,16 +36,12 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField] TextMeshProUGUI stageClearButtonText;
 
     StageManager stageManager;
-    int[][] bricks;
     int brickCount = 0;
 
     int lifeCount;
     bool isGamePlaying = false;
     DateTime gameStartTime;
     int pauseSec = 0;
-
-
-
 
     static GamePlayManager _instance;
     public static GamePlayManager Instance
@@ -57,8 +56,15 @@ public class GamePlayManager : MonoBehaviour
         }
     }
 
+    private void Awake()
+    {
+        gameCamera.orthographicSize = gameCamera.orthographicSize * (1080f / Screen.width);
+        topUI.anchoredPosition = new Vector2(0, Screen.safeArea.y - 100);
+    }
+
     void Start()
     {
+        isGamePlaying = true;
         stageManager = StageManager.Instance;
         if (stageManager == null)
         {
@@ -69,8 +75,32 @@ public class GamePlayManager : MonoBehaviour
         {
             tutorial.SetActive(true);
         }
-        bricks = stageManager.GetCurrentStageBricks();
+        StartCoroutine(stageManager.GetStageFromFile(InstantiateStage));
+    }
 
+    // Update is called once per frame
+    void Update()
+    {
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            SceneManager.LoadSceneAsync("Lobby");
+        }
+
+        if (isGamePlaying)
+        {
+            int playSec = (int)((DateTime.Now - gameStartTime).TotalSeconds - pauseSec);
+            timeText.text = String.Format("Time {0:D2}:{1:D2}", playSec / 60, playSec % 60);
+#if UNITY_EDITOR
+            //HandleKeyboard();
+            HandleTouch();
+#else
+            HandleTouch();
+#endif
+        }
+    }
+
+    void InstantiateStage(int[][] bricks)
+    {
         for (int c = 0; c < StageManager.STAGE_COLUMN_COUNT; c++)
         {
             for (int r = 0; r < StageManager.STAGE_ROW_COUNT; r++)
@@ -105,24 +135,7 @@ public class GamePlayManager : MonoBehaviour
         lifeCount = DEFAULT_LIFE_COUNT;
         gameStartTime = DateTime.Now;
         CreateBall();
-        isGamePlaying = true;
-    }
 
-    // Update is called once per frame
-    void Update()
-    {
-        if (Input.GetKeyUp(KeyCode.Escape))
-        {
-            SceneManager.LoadSceneAsync("Lobby");
-        }
-
-        if (isGamePlaying)
-        {
-            int playSec = (int)((DateTime.Now - gameStartTime).TotalSeconds - pauseSec);
-            timeText.text = String.Format("Time {0:D2}:{1:D2}", playSec / 60, playSec % 60);
-            HandleKeyboard();
-            HandleTouch();
-        }
     }
 
     void HandleKeyboard()
@@ -144,6 +157,10 @@ public class GamePlayManager : MonoBehaviour
             player.SetDirection(Player.Direction.Stay);
         }
 #if UNITY_EDITOR
+        if (Input.GetKeyUp(KeyCode.Escape))
+        {
+            SceneManager.LoadSceneAsync("Lobby");
+        }
         if (Input.GetKeyUp(KeyCode.R))
         {
             ball.Reset();
@@ -169,7 +186,7 @@ public class GamePlayManager : MonoBehaviour
 
     void HandleTouch()
     {
-        if(Input.touchCount <= 0)
+        if (Input.touchCount <= 0)
         {
             return;
         }
@@ -177,21 +194,41 @@ public class GamePlayManager : MonoBehaviour
         switch (touch.phase)
         {
             case TouchPhase.Began:
-            case TouchPhase.Moved:
-                Vector2 pos = touch.position;
-                if(pos.y > Screen.height / 2)
                 {
-                    if(pos.x > Screen.width / 2)
+                    ball.Shoot();
+                    Vector2 pos = touch.position;
+                    if (pos.y < Screen.height / 2)
                     {
-                        player.SetDirection(Player.Direction.Right);
+                        if (pos.x > Screen.width / 2)
+                        {
+                            player.SetDirection(Player.Direction.Right);
+                        }
+                        else
+                        {
+                            player.SetDirection(Player.Direction.Left);
+                        }
                     }
-                    else
+                }
+                break;
+            case TouchPhase.Moved:
+                {
+                    Vector2 pos = touch.position;
+                    if (pos.y < Screen.height / 2)
                     {
-                        player.SetDirection(Player.Direction.Left);
+                        if (pos.x > Screen.width / 2)
+                        {
+                            player.SetDirection(Player.Direction.Right);
+                        }
+                        else
+                        {
+                            player.SetDirection(Player.Direction.Left);
+                        }
                     }
                 }
                 break;
             case TouchPhase.Ended:
+            case TouchPhase.Canceled:
+                Debug.Log("touch end");
                 player.SetDirection(Player.Direction.Stay);
                 break;
         }
