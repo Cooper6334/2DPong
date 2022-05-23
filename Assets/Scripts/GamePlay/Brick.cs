@@ -10,13 +10,14 @@ public class Brick : MonoBehaviour
     public void HitByBall()
     {
         hp--;
-        if(hp <= 0)
+        if (hp <= 0)
         {
-            switch (item)
+            int itemID = -1;
+            if (item > 0)
             {
-                default: break;
+                itemID = (int)Random.Range(0, 3);
             }
-            GamePlayManager.Instance.OnBrickDestroy();
+            GamePlayManager.Instance.OnBrickDestroy(transform.position, (Item.ItemType)itemID);
             Destroy(gameObject);
         }
     }

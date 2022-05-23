@@ -15,10 +15,13 @@ public class GamePlayManager : MonoBehaviour
     const int DEFAULT_LIFE_COUNT = 3;
 
     [SerializeField] GameObject brickPrefabBasic;
+    [SerializeField] GameObject brickPrefabHp2;
+    [SerializeField] GameObject brickPrefabHaveItem;
 
     [SerializeField] Transform brickContainer;
     [SerializeField] Player player;
     [SerializeField] Ball ball;
+    [SerializeField] GameObject itemPrefab;
 
     [SerializeField] TextMeshProUGUI timeText;
     [SerializeField] TextMeshProUGUI lifeText;
@@ -79,6 +82,12 @@ public class GamePlayManager : MonoBehaviour
                     case 1:
                         brickPrefab = brickPrefabBasic;
                         break;
+                    case 2:
+                        brickPrefab = brickPrefabHp2;
+                        break;
+                    case 3:
+                        brickPrefab = brickPrefabHaveItem;
+                        break;
                 }
                 if (brickPrefab != null)
                 {
@@ -93,7 +102,7 @@ public class GamePlayManager : MonoBehaviour
         }
         lifeCount = DEFAULT_LIFE_COUNT;
         gameStartTime = DateTime.Now;
-        CreateBall();   
+        CreateBall();
         isGamePlaying = true;
     }
 
@@ -117,6 +126,22 @@ public class GamePlayManager : MonoBehaviour
             {
                 ball.Reset();
             }
+            if (Input.GetKeyUp(KeyCode.I))
+            {
+                CreateItem(new Vector2(0, 3), (Item.ItemType)(UnityEngine.Random.Range(0, 3)));
+            }
+            if (Input.GetKeyUp(KeyCode.Alpha0))
+            {
+                CreateItem(new Vector2(0, 3), Item.ItemType.Long);
+            }
+            if (Input.GetKeyUp(KeyCode.Alpha1))
+            {
+                CreateItem(new Vector2(0, 3), Item.ItemType.BallQuick);
+            }
+            if (Input.GetKeyUp(KeyCode.Alpha2))
+            {
+                CreateItem(new Vector2(0, 3), Item.ItemType.MoveSpeed);
+            }
             if (Input.GetKeyDown(KeyCode.LeftArrow))
             {
                 player.SetDirection(Player.Direction.Left);
@@ -139,7 +164,7 @@ public class GamePlayManager : MonoBehaviour
 
     bool CreateBall()
     {
-        if(lifeCount <= 0)
+        if (lifeCount <= 0)
         {
             return false;
         }
@@ -147,6 +172,26 @@ public class GamePlayManager : MonoBehaviour
         ball.Reset();
         UpdateLifeText();
         return true;
+    }
+
+    void CreateItem(Vector2 position, Item.ItemType type)
+    {
+        GameObject item = Instantiate(itemPrefab);
+        item.GetComponent<Item>().Init(position, type);
+    }
+
+    public void GetItem(Item.ItemType type)
+    {
+        switch (type)
+        {
+            case Item.ItemType.Long:
+            case Item.ItemType.MoveSpeed:
+                player.GetItem(type);
+                break;
+            case Item.ItemType.BallQuick:
+                ball.GetItem(type);
+                break;
+        }
     }
 
     void StageClear()
@@ -195,12 +240,16 @@ public class GamePlayManager : MonoBehaviour
     }
     #endregion
     #region event
-    public void OnBrickDestroy()
+    public void OnBrickDestroy(Vector2 brickPosition, Item.ItemType itemType)
     {
         brickCount--;
         if (brickCount <= 0)
         {
             StageClear();
+        }
+        else if (itemType != Item.ItemType.None)
+        {
+            CreateItem(brickPosition, itemType);
         }
     }
 

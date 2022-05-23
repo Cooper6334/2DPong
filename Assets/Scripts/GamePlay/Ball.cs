@@ -5,20 +5,22 @@ using UnityEngine;
 public class Ball : MonoBehaviour
 {
     [SerializeField] Rigidbody2D myRigidbody;
-    const int DEFAULT_SPEED = 5;
+    [SerializeField] Transform player;
+    const float DEFAULT_SPEED = 5;
+    const float SPEED_UP = 3f;
     const float PLAYER_FRICTION = 0.3f;
 
-    int ballSpeed;
+    float ballSpeed;
     bool isShooted = false;
-    Vector2 INIT_POSITION = new Vector2(0, 1);
+    Vector2 INIT_POSITION_OFFSET = new Vector2(0, 0.2f);
 
     private void Update()
     {
         if (!isShooted)
         {
-            transform.localPosition = INIT_POSITION;
+            transform.localPosition = (Vector2)player.position + INIT_POSITION_OFFSET;
         }
-        if(transform.position.y < -5.5f || transform.position.y > 3.6f)
+        if (transform.position.y < -5.5f || transform.position.y > 3.6f)
         {
             Debug.Log("Ball over frame");
             GamePlayManager.Instance.OnBallFall();
@@ -45,7 +47,7 @@ public class Ball : MonoBehaviour
     {
         isShooted = false;
         myRigidbody.velocity = Vector2.zero;
-        transform.localPosition = INIT_POSITION;
+        transform.localPosition = (Vector2)player.position + INIT_POSITION_OFFSET;
     }
 
     private void OnCollisionEnter2D(Collision2D collision)
@@ -68,9 +70,21 @@ public class Ball : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if(collision.gameObject.tag == "Abyss")
+        if (collision.gameObject.tag == "Abyss")
         {
             GamePlayManager.Instance.OnBallFall();
+        }
+    }
+
+    public void GetItem(Item.ItemType type)
+    {
+        switch (type)
+        {
+            case Item.ItemType.BallQuick:
+                ballSpeed += SPEED_UP;
+                myRigidbody.velocity =
+                  ballSpeed * myRigidbody.velocity.normalized;
+                break;
         }
     }
 }
