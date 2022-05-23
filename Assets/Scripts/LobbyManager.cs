@@ -1,18 +1,29 @@
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
 public class LobbyManager : MonoBehaviour
 {
-    // Start is called before the first frame update
+    [SerializeField] TextMeshProUGUI stageName;
     void Start()
     {
-        StartGame();
+        if (StageManager.Instance == null)
+        {
+            SceneManager.LoadScene("Splash");
+            return;
+        }
+        stageName.text = "Stage:" + StageManager.Instance.GetStageName();
     }
 
     public void StartGame()
     {
         SceneManager.LoadSceneAsync("Game");
+    }
+
+    public void SelectStage(bool next)
+    {
+        stageName.text = "Stage:"+StageManager.Instance.SelectStage(next);
     }
 }

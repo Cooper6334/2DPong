@@ -122,7 +122,6 @@ public class GamePlayManager : MonoBehaviour
     public void OnBrickDestroy()
     {
         brickCount--;
-        Debug.Log("OnBrickDestroy brickCount left " + brickCount);
         if (brickCount <= 0)
         {
             StageClear();

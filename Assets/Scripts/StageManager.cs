@@ -9,6 +9,9 @@ public class StageManager : MonoBehaviour
     const string STAGE_DATA_PREFIX = "Stage_";
     const string STAGE_DATA_EXTENSION = ".csv";
 
+    const int FIRST_STAGE = 0;
+    const int LAST_STAGE = 3;
+
     public const int STAGE_ROW_COUNT = 9;
     public const int STAGE_COLUMN_COUNT = 6;
 
@@ -36,9 +39,35 @@ public class StageManager : MonoBehaviour
         }
     }
 
-    public void SetNextStage(int stage)
+    public string SelectStage(bool next)
     {
-        stageID = stage;
+        if (next)
+        {
+            if (stageID < LAST_STAGE)
+            {
+                stageID++;
+            }
+        }
+        else
+        {
+            if(stageID > FIRST_STAGE)
+            {
+                stageID--;
+            }
+        }
+        return GetStageName();
+    }
+
+    public string GetStageName()
+    {
+        if(stageID == FIRST_STAGE)
+        {
+            return "Tutorial";
+        }
+        else
+        {
+            return "" + stageID;
+        }
     }
 
     public int GetStageID()
