@@ -7,7 +7,7 @@ public class Ball : MonoBehaviour
     [SerializeField] Rigidbody2D myRigidbody;
     [SerializeField] Transform player;
     const float DEFAULT_SPEED = 5;
-    const float SPEED_UP = 3f;
+    const float SPEED_UP = 5f;
     const float PLAYER_FRICTION = 0.3f;
 
     float ballSpeed;

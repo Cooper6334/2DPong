@@ -6,11 +6,12 @@ public class Player : MonoBehaviour
 {
     [SerializeField] Rigidbody2D playerRigid;
 
+    const float MAX_LENGTH = 3;
     const float DEFAULT_LENGTH = 1;
     const float DEFAULT_HEIGHT = 0.2f;
     const float DEFAULT_SPEED = 5;
-    const float SPEED_UP = 1;
-    const float LENGTH_UP = 0.3f;
+    const float SPEED_UP = 5;
+    const float LENGTH_UP = 1;
     const float DEFAULT_MOVE_RANGE = 1.9f;
 
     Direction direction = Direction.Stay;
@@ -52,7 +53,7 @@ public class Player : MonoBehaviour
         if (direction == Direction.Left && transform.position.x <= -moveRange)
         {
             SetDirection(Direction.Stay);
-            transform.position = new Vector2( -moveRange, transform.position.y);
+            transform.position = new Vector2(-moveRange, transform.position.y);
         }
         else if (direction == Direction.Right && transform.position.x >= moveRange)
         {
@@ -70,7 +71,7 @@ public class Player : MonoBehaviour
         switch (type)
         {
             case Item.ItemType.Long:
-                length += LENGTH_UP;
+                length = Mathf.Clamp(length + LENGTH_UP, DEFAULT_LENGTH, MAX_LENGTH);
                 moveRange -= LENGTH_UP / 2;
                 transform.localScale = new Vector2(length, DEFAULT_HEIGHT);
                 break;
