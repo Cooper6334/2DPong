@@ -16,6 +16,7 @@ public class Brick : MonoBehaviour
             {
                 default: break;
             }
+            GamePlayManager.Instance.OnBrickDestroy();
             Destroy(gameObject);
         }
     }

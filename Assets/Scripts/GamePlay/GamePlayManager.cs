@@ -16,8 +16,11 @@ public class GamePlayManager : MonoBehaviour
     [SerializeField] Transform brickContainer;
     [SerializeField] Player player;
     [SerializeField] Ball ball;
+
     StageManager stageManager;
     int[][] bricks;
+    int brickCount = 0;
+    bool isGamePlaying = false;
 
 
     static GamePlayManager _instance;
@@ -59,6 +62,7 @@ public class GamePlayManager : MonoBehaviour
                 }
                 if (brickPrefab != null)
                 {
+                    brickCount++;
                     GameObject newBrick = Instantiate(brickPrefab, brickContainer);
                     newBrick.transform.position = new Vector2(
                         BRICK_START_X + r * BRICK_WIDTH,
@@ -67,6 +71,7 @@ public class GamePlayManager : MonoBehaviour
                 }
             }
         }
+        isGamePlaying = true;
     }
 
     // Update is called once per frame
@@ -76,26 +81,52 @@ public class GamePlayManager : MonoBehaviour
         {
             SceneManager.LoadSceneAsync("Lobby");
         }
-        if (Input.GetKeyUp(KeyCode.Space))
-        {
-            ball.Shoot();
-        }
-        if (Input.GetKeyUp(KeyCode.R))
-        {
-            ball.Reset();
-        }
 
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
+        if (isGamePlaying)
         {
-            player.SetDirection(Player.Direction.Left);
-        }
-        else if (Input.GetKeyDown(KeyCode.RightArrow))
-        {
-            player.SetDirection(Player.Direction.Right);
-        }
-        else if(!Input.GetKey(KeyCode.LeftArrow) && !Input.GetKey(KeyCode.RightArrow))
-        {
-            player.SetDirection(Player.Direction.Stay);
+            if (Input.GetKeyUp(KeyCode.Space))
+            {
+                ball.Shoot();
+            }
+            if (Input.GetKeyUp(KeyCode.R))
+            {
+                ball.Reset();
+            }
+            if (Input.GetKeyDown(KeyCode.LeftArrow))
+            {
+                player.SetDirection(Player.Direction.Left);
+            }
+            else if (Input.GetKeyDown(KeyCode.RightArrow))
+            {
+                player.SetDirection(Player.Direction.Right);
+            }
+            else if (!Input.GetKey(KeyCode.LeftArrow) && !Input.GetKey(KeyCode.RightArrow))
+            {
+                player.SetDirection(Player.Direction.Stay);
+            }
         }
     }
+    public void StageClear()
+    {
+        Debug.Log("StageClear");
+        Destroy(ball.gameObject);
+        isGamePlaying = false;
+        ShowScore();
+    }
+    public void ShowScore()
+    {
+
+    }
+
+    #region event
+    public void OnBrickDestroy()
+    {
+        brickCount--;
+        Debug.Log("OnBrickDestroy brickCount left " + brickCount);
+        if (brickCount <= 0)
+        {
+            StageClear();
+        }
+    }
+    #endregion
 }

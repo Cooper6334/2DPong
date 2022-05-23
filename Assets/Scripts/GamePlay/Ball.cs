@@ -33,7 +33,6 @@ public class Ball : MonoBehaviour
         //vx in range +- 0.25 to 0.5
         float vx = Random.Range(-0.25f, 0.25f);
         vx = vx + 0.25f * (vx > 0 ? 1 : -1);
-        Debug.Log("vx " + vx);
         myRigidbody.velocity = DEFAULT_SPEED * (new Vector2(vx, 1f)).normalized;
     }
 
